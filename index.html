@@ -750,7 +750,7 @@ margin-top: 28px;
       <p class="intro-text">Answer 5 questions. Our AI analyses your lifestyle, personality, and preferences to build your unique Scent Profile — with 3 handpicked recommendations chosen specifically for you.</p>
       <div class="uses-badge">
         <span class="dot"></span>
-        2 free profile reads included
+        Free scent identity + 1 recommendation
       </div>
       <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);padding:16px 20px;margin-bottom:20px;font-size:11px;line-height:1.8;color:#888880;letter-spacing:0.05em;">
         <strong style="color:#c9a84c;letter-spacing:0.15em;font-size:10px;">WHY SPEAKSCENTS?</strong><br><br>
@@ -818,21 +818,38 @@ margin-top: 28px;
     </div>
   </div>
 
+  <!-- EMAIL CAPTURE SCREEN -->
+
+  <div class="screen" id="screen-email">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:48px 0;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:#c9a84c;margin-bottom:16px;letter-spacing:0.1em;">Almost there</div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;line-height:1.2;color:#faf8f4;margin-bottom:16px;">Where shall we send your full Scent Profile?</h2>
+      <p style="font-size:12px;line-height:1.8;color:#888880;margin-bottom:32px;">Enter your email below. Once you unlock your profile we'll send your beautifully designed PDF directly to your inbox.</p>
+      <input type="email" id="customer-email" placeholder="your@email.com" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;font-family:'Cormorant Garamond',serif;font-size:18px;padding:16px 20px;width:100%;outline:none;margin-bottom:12px;letter-spacing:0.05em;" />
+      <input type="text" id="customer-name" placeholder="Your first name" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;font-family:'Cormorant Garamond',serif;font-size:18px;padding:16px 20px;width:100%;outline:none;margin-bottom:24px;letter-spacing:0.05em;" />
+      <button id="proceed-payment-btn" style="background:#c9a84c;color:#080808;border:none;padding:18px 32px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;cursor:pointer;width:100%;margin-bottom:12px;">Unlock My Full Profile — £9.99</button>
+      <p style="font-size:10px;color:rgba(136,136,128,0.4);letter-spacing:0.08em;text-align:center;line-height:1.7;">By continuing you agree that personalised profiles are non-refundable once generated. We'll only use your email to deliver your profile.</p>
+    </div>
+  </div>
+
   <!-- PAYWALL SCREEN -->
 
   <div class="screen" id="screen-paywall">
     <div class="paywall-screen">
       <div class="paywall-icon">🖤</div>
-      <h2 class="paywall-title">You've used your 2 free reads</h2>
-      <p class="paywall-text">Unlock unlimited Scent Profile reads and discover new facets of your fragrance identity whenever you like.</p>
-      <div class="price-tag">99p</div>
-      <div class="price-sub">Unlocks 3 more reads</div>
+      <h2 class="paywall-title">Your full profile is ready</h2>
+      <p class="paywall-text">Unlock your 2 remaining recommendations plus your complete Fragrance Wardrobe guide — delivered instantly.</p>
+      <div class="price-tag">£9.99</div>
+      <div class="price-sub">Full profile + 2 more recommendations</div>
       <p style="font-size:10px;color:rgba(136,136,128,0.6);letter-spacing:0.1em;margin-bottom:16px;line-height:1.7;">By unlocking, you agree that personalised profiles are non-refundable once generated. Results are tailored to your answers and delivered immediately.</p>
-      <button class="btn-primary" id="payment-btn">Unlock More Reads</button>
-      <button class="btn-ghost" id="pdf-btn">Get Your Full PDF Profile — £9.99</button>
-      <div class="divider"></div>
-      <p style="font-size:11px;color:var(--muted);text-align:center;letter-spacing:0.1em;">Payment powered by Stripe. Secure checkout.</p>
-    </div>
+      <button class="btn-primary" id="payment-btn">Unlock Full Profile — £9.99</button>
+
+```
+  <div class="divider"></div>
+  <p style="font-size:11px;color:var(--muted);text-align:center;letter-spacing:0.1em;">Payment powered by Stripe. Secure checkout.</p>
+</div>
+```
+
   </div>
 
   <!-- ERROR BOX (shared) -->
@@ -915,6 +932,16 @@ const QUESTIONS = [
 let currentQ = 0;
 let answers = {};
 let usesRemaining = parseInt(localStorage.getItem('speakScentsUses') ?? '2');
+
+// Test mode - bypass payment with URL parameter
+function checkTestMode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('preview') === 'speakscents2025') {
+    localStorage.setItem('speakScentsUnlocked', 'true');
+    console.log('Test mode activated');
+  }
+}
+checkTestMode();
 
 function startQuiz() {
   if (usesRemaining <= 0) {
@@ -1019,7 +1046,15 @@ async function generateProfile() {
 showScreen(‘screen-loading’);
 animateLoadingSteps();
 
-const prompt = `You are a luxury perfume consultant with deep expertise in niche and designer fragrances. Based on the following customer profile, create a personalised Scent Profile. Be specific, elegant, and personal.
+const prompt = `You are an expert perfume consultant with deep knowledge across all fragrance categories — designer, niche, Arabian/Middle Eastern, and affordable clone alternatives. Based on the following customer profile, create a personalised Scent Profile. Be specific, elegant, and personal.
+
+Your 3 recommendations should be a thoughtful mix. Consider including:
+
+- 1 well-known designer fragrance (e.g. Dior, Chanel, YSL, Tom Ford, Versace)
+- 1 niche or luxury house fragrance (e.g. Creed, Maison Margiela, Initio, Xerjoff, Amouage)
+- 1 Arabian/Middle Eastern fragrance OR an affordable clone alternative (e.g. Lattafa, Armaf, Rasasi, Al Haramain, Fragrance World) that delivers exceptional quality at a fraction of the price
+
+Always prioritise what genuinely suits the customer’s profile over category. Never recommend fragrances they already own.
 
 Customer Profile:
 
@@ -1127,15 +1162,16 @@ showError(’Something went wrong: ’ + (err.message || ‘Please try again.’
 }
 
 function renderResult(profile) {
-const pips = [0,1].map(i =>
-`<div class="pip ${i >= usesRemaining ? 'used' : ''}"></div>`
-).join(’’);
+window.currentProfile = profile; // Store for copy function
+// pips removed - new model
 
-const recs = profile.recommendations.map((r, i) => `<div class="rec-card"> <div class="rec-number">0${i+1}</div> <div class="rec-name">${r.name}</div> <div class="rec-house">${r.house}</div> <div class="rec-reason">${r.reason}</div> </div>`).join(’’);
+const isPaid = localStorage.getItem(‘speakScentsUnlocked’) === ‘true’;
 
-const usesHTML = usesRemaining > 0
-? `<div class="uses-remaining"> <span class="uses-text">${usesRemaining} free read${usesRemaining !== 1 ? 's' : ''} remaining</span> <div class="uses-pips">${pips}</div> </div>`
-: `<div class="uses-remaining" style="border-color:rgba(201,168,76,0.2)"> <span class="uses-text" style="color:var(--gold)">No free reads remaining</span> <div class="uses-pips">${pips}</div> </div>`;
+const recs = isPaid ? profile.recommendations.map((r, i) => ` <div class="rec-card"> <div class="rec-number">0${i+1}</div> <div class="rec-name">${r.name}</div> <div class="rec-house">${r.house}</div> <div class="rec-reason">${r.reason}</div> </div>`).join(’’) : ‘’;
+
+const isPaidCheck = localStorage.getItem(‘speakScentsUnlocked’) === ‘true’;
+const lifestyleSnippet = answers.lifestyle ? answers.lifestyle.split(’ — ‘)[0].split(’,’)[0].toLowerCase() : ‘your lifestyle’;
+const usesHTML = isPaidCheck ? ` <div style="margin-top:24px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);padding:20px;text-align:center;"> <div style="font-size:10px;letter-spacing:0.3em;color:#c9a84c;text-transform:uppercase;margin-bottom:10px;">Your Full Profile Is Unlocked 🖤</div> <button id="copy-profile-btn" style="background:transparent;color:#c9a84c;border:1px solid rgba(201,168,76,0.4);padding:14px 24px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;width:100%;margin-bottom:8px;">Copy Profile Text For PDF</button> <p style="font-size:10px;color:rgba(136,136,128,0.4);letter-spacing:0.05em;">Copies everything to clipboard — paste directly into your Canva template</p> </div>` : ` <div style="margin-top:28px;background:rgba(8,8,8,0.95);border:1px solid rgba(201,168,76,0.3);padding:28px 24px;text-align:center;"> <div style="font-size:10px;letter-spacing:0.3em;color:#c9a84c;text-transform:uppercase;margin-bottom:20px;">Your Recommendations Are Waiting 🖤</div> <div style="text-align:left;margin-bottom:24px;"> <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;padding:12px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);"> <span style="color:#c9a84c;font-size:11px;letter-spacing:0.1em;flex-shrink:0;margin-top:2px;">01</span> <p style="font-size:12px;line-height:1.6;color:rgba(245,240,232,0.7);margin:0;">A <em style="color:#f5f0e8;">designer fragrance</em> perfectly suited to ${lifestyleSnippet}</p> </div> <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;padding:12px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);"> <span style="color:#c9a84c;font-size:11px;letter-spacing:0.1em;flex-shrink:0;margin-top:2px;">02</span> <p style="font-size:12px;line-height:1.6;color:rgba(245,240,232,0.7);margin:0;">A <em style="color:#f5f0e8;">niche house discovery</em> most people have never encountered — chosen specifically for your scent identity</p> </div> <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);"> <span style="color:#c9a84c;font-size:11px;letter-spacing:0.1em;flex-shrink:0;margin-top:2px;">03</span> <p style="font-size:12px;line-height:1.6;color:rgba(245,240,232,0.7);margin:0;">An <em style="color:#f5f0e8;">Arabian alternative</em> that rivals a £200 bottle — for under £30. This alone is worth the price.</p> </div> </div> <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:#c9a84c;line-height:1;margin-bottom:4px;">£9.99</div> <div style="font-size:10px;letter-spacing:0.2em;color:rgba(136,136,128,0.5);margin-bottom:20px;text-transform:uppercase;">One-time · Instant delivery · PDF included</div> <button id="unlock-full-btn" style="background:#c9a84c;color:#080808;border:none;padding:18px 32px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;cursor:pointer;width:100%;margin-bottom:12px;">Unlock My Full Profile</button> <p style="font-size:10px;color:rgba(136,136,128,0.35);letter-spacing:0.08em;line-height:1.7;">A department store consultation costs £50+.<br>Your SpeakScents profile is £9.99.</p> </div>`;
 
 document.getElementById(‘result-content’).innerHTML = `
 <div class="result-badge">Your Scent Profile</div>
@@ -1183,11 +1219,8 @@ ${usesHTML}
   <p style="font-size:10px;color:rgba(136,136,128,0.4);letter-spacing:0.08em;margin-top:12px;text-align:center;">Links may be affiliate links — we may earn a small commission at no cost to you</p>
 </div>
 <div class="result-actions">
-  ${usesRemaining > 0
-    ? `<button class="btn-primary" id="discover-btn">Discover Another Profile</button>`
-    : `<button class="btn-primary" id="unlock-btn">Unlock More Reads — 99p</button>`
-  }
-  <button class="btn-ghost" id="pdf-btn">Get Your Full PDF Profile — £9.99</button>
+  <button class="btn-ghost" id="share-btn" onclick="shareProfile('${profile.scentName}', '${profile.archetype}')">Share My Scent Identity 🖤</button>
+  <button class="btn-ghost" id="discover-btn">Try Another Profile</button>
 </div>
 ```
 
@@ -1197,10 +1230,12 @@ ${usesHTML}
 setTimeout(function() {
 var discoverBtn = document.getElementById(‘discover-btn’);
 if (discoverBtn) discoverBtn.addEventListener(‘click’, startQuiz);
-var unlockBtn = document.getElementById(‘unlock-btn’);
-if (unlockBtn) unlockBtn.addEventListener(‘click’, function() { showScreen(‘screen-paywall’); });
-var pdfResultBtn = document.getElementById(‘pdf-result-btn’);
-if (pdfResultBtn) pdfResultBtn.addEventListener(‘click’, showPDFUpsell);
+var unlockFullBtn = document.getElementById(‘unlock-full-btn’);
+if (unlockFullBtn) unlockFullBtn.addEventListener(‘click’, handlePayment);
+var copyBtn = document.getElementById(‘copy-profile-btn’);
+if (copyBtn) copyBtn.addEventListener(‘click’, copyProfile);
+var proceedBtn = document.getElementById(‘proceed-payment-btn’);
+if (proceedBtn) proceedBtn.addEventListener(‘click’, proceedToPayment);
 }, 100);
 }
 
@@ -1214,7 +1249,21 @@ if (el) el.classList.add(‘visible’);
 }
 
 function handlePayment() {
-window.location.href = ‘https://buy.stripe.com/14A4gzdFc6sya594ZX7wA00’;
+showScreen(‘screen-email’);
+}
+
+function proceedToPayment() {
+const email = document.getElementById(‘customer-email’).value;
+const name = document.getElementById(‘customer-name’).value;
+if (!email || !email.includes(’@’)) {
+alert(‘Please enter a valid email address so we can deliver your profile.’);
+return;
+}
+// Store customer details for your records
+localStorage.setItem(‘speakScentsEmail’, email);
+localStorage.setItem(‘speakScentsName’, name);
+localStorage.setItem(‘speakScentsUnlocked’, ‘true’);
+window.location.href = ‘https://buy.stripe.com/eVq6oH9oW9EKelp2RP7wA01’;
 }
 
 function showPDFUpsell() {
@@ -1225,6 +1274,55 @@ function showScreen(id) {
 document.querySelectorAll(’.screen’).forEach(s => s.classList.remove(‘active’));
 document.getElementById(id).classList.add(‘active’);
 window.scrollTo(0, 0);
+}
+
+function shareProfile(scentName, archetype) {
+const text = `I just discovered my scent identity on SpeakScents 🖤
+
+I’m “${scentName}” — ${archetype}
+
+Find yours at speakscents.co.uk`;
+if (navigator.share) {
+navigator.share({ title: ‘My SpeakScents Identity’, text: text, url: ‘https://speakscents.co.uk’ });
+} else {
+navigator.clipboard.writeText(text).then(() => alert(‘Copied to clipboard — paste anywhere to share!’));
+}
+}
+
+function copyProfile() {
+const profile = window.currentProfile;
+if (!profile) return;
+const text = `SPEAKSCENTS PROFILE
+
+Scent Identity: ${profile.scentName}
+Archetype: ${profile.archetype}
+
+${profile.identity}
+
+RECOMMENDATIONS:
+
+01 — ${profile.recommendations[0].name} by ${profile.recommendations[0].house}
+${profile.recommendations[0].reason}
+
+02 — ${profile.recommendations[1].name} by ${profile.recommendations[1].house}
+${profile.recommendations[1].reason}
+
+03 — ${profile.recommendations[2].name} by ${profile.recommendations[2].house}
+${profile.recommendations[2].reason}
+
+WEAR TIP:
+${profile.wearTip}
+
+Customer Email: ${localStorage.getItem(‘speakScentsEmail’) || ‘not captured’}
+Customer Name: ${localStorage.getItem(‘speakScentsName’) || ‘not captured’}`;
+
+navigator.clipboard.writeText(text).then(() => {
+const btn = document.getElementById(‘copy-profile-btn’);
+if (btn) {
+btn.textContent = ‘Copied! ✓’;
+setTimeout(() => { btn.textContent = ‘Copy Profile Text For PDF’; }, 2000);
+}
+});
 }
 
 function showError(msg) {
@@ -1242,8 +1340,8 @@ if (beginBtn) beginBtn.addEventListener(‘click’, startQuiz);
 var paymentBtn = document.getElementById(‘payment-btn’);
 if (paymentBtn) paymentBtn.addEventListener(‘click’, handlePayment);
 
-var pdfBtn = document.getElementById(‘pdf-btn’);
-if (pdfBtn) pdfBtn.addEventListener(‘click’, showPDFUpsell);
+var proceedBtn = document.getElementById(‘proceed-payment-btn’);
+if (proceedBtn) proceedBtn.addEventListener(‘click’, proceedToPayment);
 });
 
 // Also attach immediately in case DOM already loaded
