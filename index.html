@@ -1,1 +1,1351 @@
+<!DOCTYPE html>
 
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeakScents — Discover Your Signature</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --deep: #0d0d0d;
+    --gold: #c9a84c;
+    --gold-light: #e8cc7a;
+    --cream: #f5f0e8;
+    --warm-white: #faf8f4;
+    --muted: #888880;
+    --border: rgba(201,168,76,0.2);
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { background: #080808 !important; }
+
+body {
+background: #080808 !important;
+color: #f5f0e8 !important;
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 300;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Grain overlay */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.03’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 1000;
+opacity: 0.4;
+}
+
+.app {
+max-width: 480px;
+margin: 0 auto;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+padding: 0 24px;
+}
+
+/* Header */
+.header {
+padding: 48px 0 32px;
+text-align: center;
+border-bottom: 1px solid var(–border);
+margin-bottom: 48px;
+animation: fadeDown 0.8s ease both;
+}
+
+.logo-mark {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 11px;
+font-weight: 400;
+letter-spacing: 0.4em;
+color: var(–gold);
+text-transform: uppercase;
+margin-bottom: 12px;
+}
+
+.logo {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 38px;
+font-weight: 300;
+font-style: italic;
+color: var(–warm-white);
+line-height: 1;
+margin-bottom: 8px;
+}
+
+.tagline {
+font-size: 10px;
+letter-spacing: 0.35em;
+color: var(–muted);
+text-transform: uppercase;
+}
+
+/* Screens */
+.screen {
+display: none;
+flex-direction: column;
+flex: 1;
+animation: fadeUp 0.6s ease both;
+}
+.screen.active { display: flex; }
+
+/* Intro screen */
+.intro-body {
+flex: 1;
+display: flex;
+flex-direction: column;
+justify-content: center;
+padding: 20px 0 48px;
+}
+
+.intro-number {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 80px;
+font-weight: 300;
+color: rgba(201,168,76,0.08);
+line-height: 1;
+margin-bottom: -20px;
+}
+
+.intro-headline {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 36px;
+font-weight: 300;
+line-height: 1.2;
+color: var(–warm-white);
+margin-bottom: 20px;
+}
+
+.intro-headline em {
+font-style: italic;
+color: var(–gold-light);
+}
+
+.intro-text {
+font-size: 13px;
+line-height: 1.8;
+color: var(–muted);
+margin-bottom: 40px;
+}
+
+.uses-badge {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+background: rgba(201,168,76,0.08);
+border: 1px solid var(–border);
+border-radius: 2px;
+padding: 10px 16px;
+font-size: 11px;
+letter-spacing: 0.15em;
+color: var(–gold);
+margin-bottom: 32px;
+}
+
+.dot {
+width: 5px;
+height: 5px;
+background: var(–gold);
+border-radius: 50%;
+animation: pulse 2s ease infinite;
+}
+
+/* Buttons */
+.btn-primary {
+background: var(–gold);
+color: var(–black);
+border: none;
+padding: 18px 32px;
+font-family: ‘Montserrat’, sans-serif;
+font-size: 11px;
+font-weight: 500;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+cursor: pointer;
+width: 100%;
+transition: all 0.3s ease;
+position: relative;
+overflow: hidden;
+}
+
+.btn-primary::after {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: rgba(255,255,255,0.1);
+transform: translateX(-100%);
+transition: transform 0.3s ease;
+}
+
+.btn-primary:hover::after { transform: translateX(0); }
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-ghost {
+background: transparent;
+color: var(–muted);
+border: 1px solid rgba(136,136,128,0.3);
+padding: 16px 32px;
+font-family: ‘Montserrat’, sans-serif;
+font-size: 11px;
+font-weight: 400;
+letter-spacing: 0.25em;
+text-transform: uppercase;
+cursor: pointer;
+width: 100%;
+transition: all 0.3s ease;
+margin-top: 12px;
+}
+
+.btn-ghost:hover {
+border-color: var(–gold);
+color: var(–gold);
+}
+
+/* Progress */
+.progress-wrap {
+margin-bottom: 40px;
+}
+
+.progress-meta {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 10px;
+}
+
+.progress-label {
+font-size: 10px;
+letter-spacing: 0.3em;
+color: var(–muted);
+text-transform: uppercase;
+}
+
+.progress-count {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 14px;
+color: var(–gold);
+}
+
+.progress-bar {
+height: 1px;
+background: rgba(255,255,255,0.08);
+position: relative;
+overflow: hidden;
+}
+
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–gold), var(–gold-light));
+transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Question */
+.question-wrap {
+flex: 1;
+display: flex;
+flex-direction: column;
+padding-bottom: 48px;
+}
+
+.question-num {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 13px;
+font-style: italic;
+color: var(–gold);
+margin-bottom: 16px;
+letter-spacing: 0.1em;
+}
+
+.question-text {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 28px;
+font-weight: 300;
+line-height: 1.3;
+color: var(–warm-white);
+margin-bottom: 36px;
+}
+
+/* Options */
+.options {
+display: flex;
+flex-direction: column;
+gap: 10px;
+margin-bottom: 32px;
+flex: 1;
+}
+
+.option {
+border: 1px solid rgba(255,255,255,0.08);
+background: rgba(255,255,255,0.02);
+padding: 16px 20px;
+cursor: pointer;
+transition: all 0.25s ease;
+display: flex;
+align-items: center;
+gap: 14px;
+position: relative;
+overflow: hidden;
+}
+
+.option::before {
+content: ‘’;
+position: absolute;
+left: 0;
+top: 0;
+bottom: 0;
+width: 2px;
+background: var(–gold);
+transform: scaleY(0);
+transition: transform 0.25s ease;
+}
+
+.option:hover {
+border-color: rgba(201,168,76,0.3);
+background: rgba(201,168,76,0.04);
+}
+
+.option:hover::before { transform: scaleY(1); }
+
+.option.selected {
+border-color: var(–gold);
+background: rgba(201,168,76,0.08);
+}
+
+.option.selected::before { transform: scaleY(1); }
+
+.option-indicator {
+width: 20px;
+height: 20px;
+border: 1px solid rgba(255,255,255,0.2);
+border-radius: 50%;
+flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.25s ease;
+}
+
+.option.selected .option-indicator {
+border-color: var(–gold);
+background: var(–gold);
+}
+
+.option-check {
+width: 8px;
+height: 8px;
+background: var(–black);
+border-radius: 50%;
+opacity: 0;
+transition: opacity 0.25s ease;
+}
+
+.option.selected .option-check { opacity: 1; }
+
+.option-text {
+font-size: 13px;
+line-height: 1.5;
+color: var(–cream);
+letter-spacing: 0.02em;
+}
+
+/* Text input for open questions */
+.text-input {
+background: rgba(255,255,255,0.03);
+border: 1px solid rgba(255,255,255,0.1);
+border-top: 1px solid rgba(255,255,255,0.1);
+color: var(–cream);
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 18px;
+font-weight: 300;
+padding: 16px 20px;
+width: 100%;
+resize: none;
+outline: none;
+transition: border-color 0.25s ease;
+line-height: 1.6;
+min-height: 100px;
+}
+
+.text-input::placeholder { color: rgba(136,136,128,0.5); font-style: italic; }
+.text-input:focus { border-color: rgba(201,168,76,0.5); }
+
+/* Loading screen */
+.loading-screen {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 48px 0;
+text-align: center;
+}
+
+.loader-ring {
+width: 64px;
+height: 64px;
+border: 1px solid rgba(201,168,76,0.15);
+border-top-color: var(–gold);
+border-radius: 50%;
+animation: spin 1.2s linear infinite;
+margin-bottom: 32px;
+}
+
+.loading-title {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 24px;
+font-style: italic;
+color: var(–warm-white);
+margin-bottom: 12px;
+}
+
+.loading-sub {
+font-size: 11px;
+letter-spacing: 0.25em;
+color: var(–muted);
+text-transform: uppercase;
+}
+
+.loading-steps {
+margin-top: 40px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+width: 100%;
+max-width: 280px;
+}
+
+.loading-step {
+display: flex;
+align-items: center;
+gap: 12px;
+opacity: 0;
+transform: translateX(-10px);
+transition: all 0.4s ease;
+}
+
+.loading-step.visible {
+opacity: 1;
+transform: translateX(0);
+}
+
+.step-dot {
+width: 4px;
+height: 4px;
+background: var(–gold);
+border-radius: 50%;
+flex-shrink: 0;
+}
+
+.step-text {
+font-size: 11px;
+letter-spacing: 0.15em;
+color: var(–muted);
+text-transform: uppercase;
+}
+
+/* Result screen */
+.result-screen {
+flex: 1;
+padding-bottom: 48px;
+}
+
+.result-badge {
+display: inline-block;
+font-size: 10px;
+letter-spacing: 0.35em;
+color: var(–gold);
+text-transform: uppercase;
+border: 1px solid var(–border);
+padding: 6px 14px;
+margin-bottom: 24px;
+}
+
+.result-name {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 42px;
+font-weight: 300;
+font-style: italic;
+color: var(–warm-white);
+line-height: 1.1;
+margin-bottom: 8px;
+}
+
+.result-subtitle {
+font-size: 11px;
+letter-spacing: 0.25em;
+color: var(–gold);
+text-transform: uppercase;
+margin-bottom: 24px;
+}
+
+.result-identity {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 17px;
+font-weight: 300;
+font-style: italic;
+line-height: 1.8;
+color: rgba(245,240,232,0.85);
+border-left: 1px solid var(–gold);
+padding-left: 20px;
+margin-bottom: 36px;
+}
+
+.recs-label {
+font-size: 10px;
+letter-spacing: 0.35em;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 16px;
+}
+
+.rec-card {
+border: 1px solid rgba(255,255,255,0.06);
+padding: 20px;
+margin-bottom: 10px;
+background: rgba(255,255,255,0.02);
+transition: border-color 0.25s ease;
+}
+
+.rec-card:hover { border-color: var(–border); }
+
+.rec-number {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 11px;
+color: var(–gold);
+letter-spacing: 0.2em;
+margin-bottom: 6px;
+}
+
+.rec-name {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 22px;
+font-weight: 400;
+color: var(–warm-white);
+margin-bottom: 4px;
+}
+
+.rec-house {
+font-size: 10px;
+letter-spacing: 0.2em;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 10px;
+}
+
+.rec-reason {
+font-size: 12px;
+line-height: 1.7;
+color: rgba(245,240,232,0.7);
+}
+
+.wear-tip {
+margin-top: 28px;
+background: rgba(201,168,76,0.05);
+border: 1px solid var(–border);
+padding: 20px;
+}
+
+.wear-tip-label {
+font-size: 10px;
+letter-spacing: 0.3em;
+color: var(–gold);
+text-transform: uppercase;
+margin-bottom: 8px;
+}
+
+.wear-tip-text {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 16px;
+font-style: italic;
+line-height: 1.7;
+color: rgba(245,240,232,0.8);
+}
+
+.uses-remaining {
+margin-top: 32px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 14px 18px;
+border: 1px solid rgba(255,255,255,0.06);
+background: rgba(255,255,255,0.02);
+}
+
+.uses-text {
+font-size: 11px;
+letter-spacing: 0.15em;
+color: var(–muted);
+text-transform: uppercase;
+}
+
+.uses-pips {
+display: flex;
+gap: 6px;
+}
+
+.pip {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background: var(–gold);
+transition: background 0.3s ease;
+}
+
+.pip.used { background: rgba(136,136,128,0.3); }
+
+.cta-section {
+margin-top: 28px;
+}
+
+.cta-title {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 22px;
+font-weight: 300;
+font-style: italic;
+color: var(–warm-white);
+margin-bottom: 8px;
+}
+
+.cta-text {
+font-size: 12px;
+line-height: 1.7;
+color: var(–muted);
+margin-bottom: 20px;
+}
+
+/* Paywall screen */
+.paywall-screen {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding: 48px 0;
+}
+
+.paywall-icon {
+font-size: 40px;
+margin-bottom: 24px;
+opacity: 0.6;
+}
+
+.paywall-title {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 34px;
+font-weight: 300;
+font-style: italic;
+color: var(–warm-white);
+line-height: 1.2;
+margin-bottom: 16px;
+}
+
+.paywall-text {
+font-size: 13px;
+line-height: 1.8;
+color: var(–muted);
+margin-bottom: 36px;
+max-width: 320px;
+}
+
+.price-tag {
+font-family: ‘Cormorant Garamond’, serif;
+font-size: 52px;
+font-weight: 300;
+color: var(–gold);
+line-height: 1;
+margin-bottom: 4px;
+}
+
+.price-sub {
+font-size: 11px;
+letter-spacing: 0.25em;
+color: var(–muted);
+text-transform: uppercase;
+margin-bottom: 32px;
+}
+
+/* Error */
+.error-box {
+background: rgba(180,60,60,0.1);
+border: 1px solid rgba(180,60,60,0.3);
+padding: 16px 20px;
+margin-bottom: 20px;
+font-size: 13px;
+color: #e08080;
+line-height: 1.6;
+display: none;
+}
+
+.divider {
+height: 1px;
+background: var(–border);
+margin: 32px 0;
+}
+
+/* Animations */
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeDown {
+from { opacity: 0; transform: translateY(-10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.3; }
+}
+
+/* Footer */
+.footer {
+text-align: center;
+padding: 24px 0 32px;
+font-size: 10px;
+letter-spacing: 0.2em;
+color: rgba(136,136,128,0.4);
+text-transform: uppercase;
+border-top: 1px solid rgba(255,255,255,0.04);
+margin-top: auto;
+}
+
+.result-actions {
+display: flex;
+flex-direction: column;
+gap: 10px;
+margin-top: 28px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="logo-mark">Est. 2025</div>
+    <div class="logo">SpeakScents</div>
+    <div class="tagline">Discover Your Signature Fragrance</div>
+  </div>
+
+  <!-- INTRO SCREEN -->
+
+  <div class="screen active" id="screen-intro">
+    <div class="intro-body">
+      <div class="intro-number">01</div>
+      <h1 class="intro-headline">Your <em>signature</em> scent is waiting to be found</h1>
+      <p class="intro-text">Tell us about yourself and we'll create your personal Scent Identity — then recommend 3 fragrances tailored specifically to your taste, lifestyle, and personality. No trends. No paid promotions. Just your perfect match.</p>
+      <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);padding:16px 20px;margin-bottom:24px;font-size:11px;line-height:1.8;color:#888880;letter-spacing:0.05em;">
+        <strong style="color:#c9a84c;letter-spacing:0.15em;font-size:10px;">WHY SPEAKSCENTS?</strong><br><br>
+        Tired of influencer recommendations that could be paid partnerships — where they're incentivised to speak positively regardless of whether a fragrance truly suits you?<br><br>
+        SpeakScents was built differently. <em style="color:#f5f0e8;">No commissions. No paid promotions. No trends.</em> Just an honest, AI-powered scent profile built entirely around you.
+      </div>
+      <button class="btn-primary" id="begin-btn">Create My Scent Profile</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+
+  <div class="screen" id="screen-quiz">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label">Your Profile</span>
+        <span class="progress-count" id="progress-count">1 / 5</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:20%"></div>
+      </div>
+    </div>
+
+```
+<div class="question-wrap" id="question-wrap">
+  <!-- Dynamically rendered -->
+</div>
+```
+
+  </div>
+
+  <!-- LOADING SCREEN -->
+
+  <div class="screen" id="screen-loading">
+    <div class="loading-screen">
+      <div class="loader-ring"></div>
+      <div class="loading-title">Composing your profile</div>
+      <div class="loading-sub">Please wait a moment</div>
+      <div class="loading-steps" id="loading-steps">
+        <div class="loading-step" id="step-1">
+          <div class="step-dot"></div>
+          <span class="step-text">Analysing your lifestyle</span>
+        </div>
+        <div class="loading-step" id="step-2">
+          <div class="step-dot"></div>
+          <span class="step-text">Mapping scent preferences</span>
+        </div>
+        <div class="loading-step" id="step-3">
+          <div class="step-dot"></div>
+          <span class="step-text">Selecting recommendations</span>
+        </div>
+        <div class="loading-step" id="step-4">
+          <div class="step-dot"></div>
+          <span class="step-text">Writing your identity</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+
+  <div class="screen" id="screen-result">
+    <div class="result-screen" id="result-content">
+      <!-- Dynamically rendered -->
+    </div>
+  </div>
+
+  <!-- EMAIL CAPTURE SCREEN -->
+
+  <div class="screen" id="screen-email">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:48px 0;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:#c9a84c;margin-bottom:16px;letter-spacing:0.1em;">Almost there</div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;line-height:1.2;color:#faf8f4;margin-bottom:16px;">Where shall we send your full Scent Profile?</h2>
+      <p style="font-size:12px;line-height:1.8;color:#888880;margin-bottom:32px;">Enter your email below. Once you unlock your profile we'll send your beautifully designed PDF directly to your inbox.</p>
+      <input type="email" id="customer-email" placeholder="your@email.com" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;font-family:'Cormorant Garamond',serif;font-size:18px;padding:16px 20px;width:100%;outline:none;margin-bottom:12px;letter-spacing:0.05em;" />
+      <input type="text" id="customer-name" placeholder="Your first name" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#f5f0e8;font-family:'Cormorant Garamond',serif;font-size:18px;padding:16px 20px;width:100%;outline:none;margin-bottom:24px;letter-spacing:0.05em;" />
+      <button id="proceed-payment-btn" style="background:#c9a84c;color:#080808;border:none;padding:18px 32px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;cursor:pointer;width:100%;margin-bottom:12px;">Unlock My Full Profile — £9.99</button>
+      <p style="font-size:10px;color:rgba(136,136,128,0.4);letter-spacing:0.08em;text-align:center;line-height:1.7;">By continuing you agree that personalised profiles are non-refundable once generated. We'll only use your email to deliver your profile.</p>
+    </div>
+  </div>
+
+  <!-- PAYWALL SCREEN -->
+
+  <div class="screen" id="screen-paywall">
+    <div class="paywall-screen">
+      <div class="paywall-icon">🖤</div>
+      <h2 class="paywall-title">Your full profile is ready</h2>
+      <p class="paywall-text">Unlock your 2 remaining recommendations plus your complete Fragrance Wardrobe guide — delivered instantly.</p>
+      <div class="price-tag">£9.99</div>
+      <div class="price-sub">Full profile + 2 more recommendations</div>
+      <p style="font-size:10px;color:rgba(136,136,128,0.6);letter-spacing:0.1em;margin-bottom:16px;line-height:1.7;">By unlocking, you agree that personalised profiles are non-refundable once generated. Results are tailored to your answers and delivered immediately.</p>
+      <button class="btn-primary" id="payment-btn">Unlock Full Profile — £9.99</button>
+
+```
+  <div class="divider"></div>
+  <p style="font-size:11px;color:var(--muted);text-align:center;letter-spacing:0.1em;">Payment powered by Stripe. Secure checkout.</p>
+</div>
+```
+
+  </div>
+
+  <!-- ERROR BOX (shared) -->
+
+  <div class="error-box" id="error-box"></div>
+
+  <div class="footer">SpeakScents &nbsp;·&nbsp; Powered by AI</div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    id: 'lifestyle',
+    num: 'Question One',
+    text: 'How would you describe your day-to-day life?',
+    type: 'options',
+    options: [
+      'Corporate & polished — meetings, offices, professional settings',
+      'Creative & expressive — studios, galleries, independent spaces',
+      'Active & outdoors — movement, nature, open air',
+      'Social & evening-led — dinners, events, nights out',
+      'Homebody & intimate — cosy, quiet, personal spaces'
+    ]
+  },
+  {
+    id: 'loved',
+    num: 'Question Two',
+    text: 'Name a fragrance you\'ve worn or smelt and genuinely loved.',
+    type: 'text',
+    placeholder: 'e.g. Chanel No.5, a candle at a hotel, my grandmother\'s perfume...'
+  },
+  {
+    id: 'hated',
+    num: 'Question Three',
+    text: 'Name a scent family or fragrance that has never worked for you.',
+    type: 'options',
+    options: [
+      'Heavy musks — too suffocating, stays too long',
+      'Sharp florals — powdery, synthetic, old-fashioned',
+      'Overpowering woods — smoky, too masculine',
+      'Citrus — too clean, evaporates too fast',
+      'Sweet gourmands — food-like, vanilla-heavy'
+    ]
+  },
+  {
+    id: 'occasion',
+    num: 'Question Four',
+    text: 'What\'s the primary occasion you want a signature scent for?',
+    type: 'options',
+    options: [
+      'Everyday wear — something that feels like a second skin',
+      'Work & professional — confident, memorable, appropriate',
+      'Date nights & romance — intimate, magnetic, unforgettable',
+      'Special occasions — rare, luxurious, statement-making',
+      'Seasonal — I want something for a specific time of year'
+    ]
+  },
+  {
+    id: 'personality',
+    num: 'Question Five',
+    text: 'If your ideal fragrance had a personality, it would be...',
+    type: 'options',
+    options: [
+      'Quiet confidence — understated, elegant, never tries too hard',
+      'Bold presence — walks into a room before you do',
+      'Warm & approachable — comforting, inviting, familiar',
+      'Mysterious & complex — layers that reveal themselves slowly',
+      'Fresh & alive — energising, clean, like a deep breath'
+    ]
+  },
+  {
+    id: 'existing',
+    num: 'Question Six',
+    text: 'What are the 3 fragrances you wear most often? We\'ll make sure not to recommend these.',
+    type: 'text',
+    placeholder: 'e.g. Dior Sauvage, YSL Black Opium, Chanel Chance... (type "none" if you don\'t have any)'
+  }
+];
+
+let currentQ = 0;
+let answers = {};
+let usesRemaining = parseInt(localStorage.getItem('speakScentsUses') ?? '2');
+
+// Test mode - bypass payment with URL parameter
+function checkTestMode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('preview') === 'speakscents2025') {
+    localStorage.setItem('speakScentsUnlocked', 'true');
+    console.log('Test mode activated');
+  }
+}
+checkTestMode();
+
+function startQuiz() {
+  if (usesRemaining <= 0) {
+    showScreen('screen-paywall');
+    return;
+  }
+  currentQ = 0;
+  answers = {};
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const pct = ((currentQ + 1) / QUESTIONS.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-count').textContent = (currentQ + 1) + ' / ' + QUESTIONS.length;
+
+  let html = `
+    <div class="question-num">${q.num}</div>
+    <div class="question-text">${q.text}</div>
+  `;
+
+  if (q.type === 'options') {
+    html += `<div class="options">`;
+    q.options.forEach((opt, i) => {
+      html += `
+        <div class="option" data-value="${opt.replace(/"/g,'&quot;')}">
+          <div class="option-indicator"><div class="option-check"></div></div>
+          <div class="option-text">${opt}</div>
+        </div>`;
+    });
+    html += `</div>`;
+    html += `<button class="btn-primary" id="next-btn" disabled style="opacity:0.4;cursor:not-allowed">Continue</button>`;
+  } else {
+    html += `<textarea class="text-input" id="text-answer" placeholder="${q.placeholder}" oninput="onTextInput(this)"></textarea>`;
+
+```
+html += `<button class="btn-primary" id="next-btn" style="margin-top:16px;opacity:0.4;cursor:not-allowed" disabled>Continue</button>`;
+```
+
+}
+
+document.getElementById(‘question-wrap’).innerHTML = html;
+
+// Attach events via delegation after render
+var wrap = document.getElementById(‘question-wrap’);
+var nextBtn = document.getElementById(‘next-btn’);
+if (nextBtn) {
+nextBtn.addEventListener(‘click’, nextQuestion);
+}
+
+// Attach option click handlers
+var options = wrap.querySelectorAll(’.option’);
+options.forEach(function(opt) {
+opt.addEventListener(‘click’, function() {
+selectOption(this, this.getAttribute(‘data-value’));
+});
+});
+
+// Attach text input handler
+var textInput = document.getElementById(‘text-answer’);
+if (textInput) {
+textInput.addEventListener(‘input’, function() { onTextInput(this); });
+}
+}
+
+function selectOption(el, value) {
+document.querySelectorAll(’.option’).forEach(o => o.classList.remove(‘selected’));
+el.classList.add(‘selected’);
+answers[QUESTIONS[currentQ].id] = value;
+const btn = document.getElementById(‘next-btn’);
+btn.disabled = false;
+btn.style.opacity = ‘1’;
+btn.style.cursor = ‘pointer’;
+}
+
+function onTextInput(el) {
+const btn = document.getElementById(‘next-btn’);
+if (el.value.trim().length > 2) {
+answers[QUESTIONS[currentQ].id] = el.value.trim();
+btn.disabled = false;
+btn.style.opacity = ‘1’;
+btn.style.cursor = ‘pointer’;
+} else {
+btn.disabled = true;
+btn.style.opacity = ‘0.4’;
+btn.style.cursor = ‘not-allowed’;
+}
+}
+
+function nextQuestion() {
+if (currentQ < QUESTIONS.length - 1) {
+currentQ++;
+renderQuestion();
+} else {
+generateProfile();
+}
+}
+
+async function generateProfile() {
+showScreen(‘screen-loading’);
+animateLoadingSteps();
+
+const prompt = `You are an expert perfume consultant with deep knowledge across all fragrance categories — designer, niche, Arabian/Middle Eastern, and affordable clone alternatives. Based on the following customer profile, create a personalised Scent Profile. Be specific, elegant, and personal.
+
+Your 3 recommendations should be a thoughtful mix. Consider including:
+
+- 1 well-known designer fragrance (e.g. Dior, Chanel, YSL, Tom Ford, Versace)
+- 1 niche or luxury house fragrance (e.g. Creed, Maison Margiela, Initio, Xerjoff, Amouage)
+- 1 Arabian/Middle Eastern fragrance OR an affordable clone alternative (e.g. Lattafa, Armaf, Rasasi, Al Haramain, Fragrance World) that delivers exceptional quality at a fraction of the price
+
+Always prioritise what genuinely suits the customer’s profile over category. Never recommend fragrances they already own.
+
+Customer Profile:
+
+- Lifestyle: ${answers.lifestyle}
+- A fragrance they loved: ${answers.loved}
+- Scent family they dislike: ${answers.hated}
+- Primary occasion: ${answers.occasion}
+- Desired fragrance personality: ${answers.personality}
+- Fragrances they already own (EXCLUDE these from recommendations): ${answers.existing || ‘none specified’}
+
+Respond ONLY with a valid JSON object in exactly this format, no markdown, no extra text:
+{
+“scentName”: “A poetic 2-3 word name for their scent identity (e.g. ‘Dark Silk’, ‘Morning Solitude’)”,
+“archetype”: “Their scent archetype in 3-5 words (e.g. ‘The Quiet Sensualist’)”,
+“identity”: “Two sentences describing their scent identity in an elegant, personal, second-person voice. Reference their specific answers subtly.”,
+“recommendations”: [
+{
+“name”: “Fragrance name”,
+“house”: “Brand/house name”,
+“reason”: “One sentence explaining exactly why this suits them based on their profile”
+},
+{
+“name”: “Fragrance name”,
+“house”: “Brand/house name”,
+“reason”: “One sentence explaining exactly why this suits them based on their profile”
+},
+{
+“name”: “Fragrance name”,
+“house”: “Brand/house name”,
+“reason”: “One sentence explaining exactly why this suits them based on their profile”
+}
+],
+“wearTip”: “One specific, practical tip on how they should wear their signature scent based on their lifestyle and occasion”
+}`;
+
+try {
+const response = await fetch(‘https://api.anthropic.com/v1/messages’, {
+method: ‘POST’,
+headers: {
+‘Content-Type’: ‘application/json’,
+‘anthropic-version’: ‘2023-06-01’,
+‘anthropic-dangerous-direct-browser-access’: ‘true’
+},
+body: JSON.stringify({
+model: ‘claude-sonnet-4-20250514’,
+max_tokens: 1000,
+system: ‘You are a luxury perfume consultant. You MUST respond with ONLY a valid JSON object. No markdown, no backticks, no explanations, no text before or after the JSON. Just the raw JSON object starting with { and ending with }.’,
+messages: [{ role: ‘user’, content: prompt }]
+})
+});
+
+```
+if (!response.ok) {
+  const errData = await response.json();
+  console.error('API error:', errData);
+  throw new Error(errData?.error?.message || 'API request failed');
+}
+
+const data = await response.json();
+
+if (!data.content || !data.content.length) {
+  throw new Error('Empty response from API');
+}
+
+const text = data.content.map(b => b.text || '').join('');
+console.log('Raw API response:', text);
+
+// Extract JSON from response - handle all possible formats
+let profile;
+try {
+  // Try 1: direct parse
+  let clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
+  // Try 2: find JSON object within text
+  const jsonMatch = clean.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    clean = jsonMatch[0];
+  }
+  profile = JSON.parse(clean);
+} catch (parseErr) {
+  console.error('JSON parse error, raw text was:', text);
+  throw new Error('Could not read your profile. Please try again.');
+}
+
+if (!profile.scentName || !profile.recommendations || !profile.recommendations.length) {
+  console.error('Incomplete profile:', profile);
+  throw new Error('Incomplete profile generated. Please try again.');
+}
+
+usesRemaining = Math.max(0, usesRemaining - 1);
+localStorage.setItem('speakScentsUses', usesRemaining);
+
+setTimeout(() => {
+  showScreen('screen-result');
+  renderResult(profile);
+}, 500);
+```
+
+} catch (err) {
+console.error(‘Profile generation error:’, err);
+showScreen(‘screen-quiz’);
+currentQ = QUESTIONS.length - 1;
+renderQuestion();
+showError(’Something went wrong: ’ + (err.message || ‘Please try again.’));
+}
+}
+
+function renderResult(profile) {
+window.currentProfile = profile; // Store for copy function
+// pips removed - new model
+
+const isPaid = localStorage.getItem(‘speakScentsUnlocked’) === ‘true’;
+
+const recs = isPaid ? profile.recommendations.map((r, i) => ` <div class="rec-card"> <div class="rec-number">0${i+1}</div> <div class="rec-name">${r.name}</div> <div class="rec-house">${r.house}</div> <div class="rec-reason">${r.reason}</div> </div>`).join(’’) : ‘’;
+
+const isPaidCheck = localStorage.getItem(‘speakScentsUnlocked’) === ‘true’;
+const lifestyleSnippet = answers.lifestyle ? answers.lifestyle.split(’ — ‘)[0].split(’,’)[0].toLowerCase() : ‘your lifestyle’;
+const usesHTML = isPaidCheck ? ` <div style="margin-top:24px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);padding:20px;text-align:center;"> <div style="font-size:10px;letter-spacing:0.3em;color:#c9a84c;text-transform:uppercase;margin-bottom:10px;">Your Full Profile Is Unlocked 🖤</div> <button id="copy-profile-btn" style="background:transparent;color:#c9a84c;border:1px solid rgba(201,168,76,0.4);padding:14px 24px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.25em;text-transform:uppercase;cursor:pointer;width:100%;margin-bottom:8px;">Copy Profile Text For PDF</button> <p style="font-size:10px;color:rgba(136,136,128,0.4);letter-spacing:0.05em;">Copies everything to clipboard — paste directly into your Canva template</p> </div>` : ` <div style="margin-top:28px;background:rgba(8,8,8,0.95);border:1px solid rgba(201,168,76,0.3);padding:28px 24px;text-align:center;"> <div style="font-size:10px;letter-spacing:0.3em;color:#c9a84c;text-transform:uppercase;margin-bottom:20px;">Your Recommendations Are Waiting 🖤</div> <div style="text-align:left;margin-bottom:24px;"> <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;padding:12px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);"> <span style="color:#c9a84c;font-size:11px;letter-spacing:0.1em;flex-shrink:0;margin-top:2px;">01</span> <p style="font-size:12px;line-height:1.6;color:rgba(245,240,232,0.7);margin:0;">A <em style="color:#f5f0e8;">designer fragrance</em> perfectly suited to ${lifestyleSnippet}</p> </div> <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;padding:12px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);"> <span style="color:#c9a84c;font-size:11px;letter-spacing:0.1em;flex-shrink:0;margin-top:2px;">02</span> <p style="font-size:12px;line-height:1.6;color:rgba(245,240,232,0.7);margin:0;">A <em style="color:#f5f0e8;">niche house discovery</em> most people have never encountered — chosen specifically for your scent identity</p> </div> <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);"> <span style="color:#c9a84c;font-size:11px;letter-spacing:0.1em;flex-shrink:0;margin-top:2px;">03</span> <p style="font-size:12px;line-height:1.6;color:rgba(245,240,232,0.7);margin:0;">An <em style="color:#f5f0e8;">Arabian alternative</em> that rivals a £200 bottle — for under £30. This alone is worth the price.</p> </div> </div> <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:#c9a84c;line-height:1;margin-bottom:4px;">£9.99</div> <div style="font-size:10px;letter-spacing:0.2em;color:rgba(136,136,128,0.5);margin-bottom:20px;text-transform:uppercase;">One-time · Instant delivery · PDF included</div> <button id="unlock-full-btn" style="background:#c9a84c;color:#080808;border:none;padding:18px 32px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;cursor:pointer;width:100%;margin-bottom:12px;">Unlock My Full Profile</button> <p style="font-size:10px;color:rgba(136,136,128,0.35);letter-spacing:0.08em;line-height:1.7;">A department store consultation costs £50+.<br>Your SpeakScents profile is £9.99.</p> </div>`;
+
+document.getElementById(‘result-content’).innerHTML = `
+<div class="result-badge">Your Scent Profile</div>
+<div class="result-name">${profile.scentName}</div>
+<div class="result-subtitle">${profile.archetype}</div>
+<div class="result-identity">${profile.identity}</div>
+
+```
+<div class="recs-label">Your Three Recommendations</div>
+${recs}
+
+<div style="background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.15);padding:16px 20px;margin-bottom:20px;font-size:11px;line-height:1.8;color:#888880;letter-spacing:0.05em;">
+  <strong style="color:#c9a84c;letter-spacing:0.15em;font-size:10px;">A NOTE FROM US 🖤</strong><br><br>
+  Before you rush to purchase — please test first. Visit a counter, request a sample, or try a decant before committing to a full bottle. Fragrance reacts differently on every skin, and we want you to love yours completely.
+</div>
+
+<div class="wear-tip">
+  <div class="wear-tip-label">How To Wear It</div>
+  <div class="wear-tip-text">${profile.wearTip}</div>
+</div>
+
+${usesHTML}
+
+<div style="margin-top:28px;padding:20px;border:1px solid rgba(201,168,76,0.2);background:rgba(201,168,76,0.04);">
+  <div style="font-size:10px;letter-spacing:0.3em;color:#c9a84c;text-transform:uppercase;margin-bottom:8px;">Shop Your Recommendations</div>
+  <p style="font-size:12px;line-height:1.7;color:rgba(136,136,128,0.8);margin-bottom:16px;">Find your recommended fragrances at trusted UK discounters — often 30-50% below RRP. Always test before you buy.</p>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <a href="https://www.fragrancedirect.co.uk" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:border-color 0.25s ease;" onmouseover="this.style.borderColor='rgba(201,168,76,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+      <span style="font-size:12px;color:#f5f0e8;letter-spacing:0.05em;">Fragrance Direct</span>
+      <span style="font-size:10px;color:#c9a84c;letter-spacing:0.1em;">SHOP →</span>
+    </a>
+    <a href="https://www.theperfumeshop.com" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:border-color 0.25s ease;" onmouseover="this.style.borderColor='rgba(201,168,76,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+      <span style="font-size:12px;color:#f5f0e8;letter-spacing:0.05em;">The Perfume Shop</span>
+      <span style="font-size:10px;color:#c9a84c;letter-spacing:0.1em;">SHOP →</span>
+    </a>
+    <a href="https://www.notino.co.uk" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:border-color 0.25s ease;" onmouseover="this.style.borderColor='rgba(201,168,76,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+      <span style="font-size:12px;color:#f5f0e8;letter-spacing:0.05em;">Notino</span>
+      <span style="font-size:10px;color:#c9a84c;letter-spacing:0.1em;">SHOP →</span>
+    </a>
+    <a href="https://www.feelunique.com" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:border-color 0.25s ease;" onmouseover="this.style.borderColor='rgba(201,168,76,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+      <span style="font-size:12px;color:#f5f0e8;letter-spacing:0.05em;">Feelunique</span>
+      <span style="font-size:10px;color:#c9a84c;letter-spacing:0.1em;">SHOP →</span>
+    </a>
+  </div>
+  <p style="font-size:10px;color:rgba(136,136,128,0.4);letter-spacing:0.08em;margin-top:12px;text-align:center;">Links may be affiliate links — we may earn a small commission at no cost to you</p>
+</div>
+<div class="result-actions">
+  <button class="btn-ghost" id="share-btn" onclick="shareProfile('${profile.scentName}', '${profile.archetype}')">Share My Scent Identity 🖤</button>
+  <button class="btn-ghost" id="discover-btn">Try Another Profile</button>
+</div>
+```
+
+`;
+
+// Attach result screen button events
+setTimeout(function() {
+var discoverBtn = document.getElementById(‘discover-btn’);
+if (discoverBtn) discoverBtn.addEventListener(‘click’, startQuiz);
+var unlockFullBtn = document.getElementById(‘unlock-full-btn’);
+if (unlockFullBtn) unlockFullBtn.addEventListener(‘click’, handlePayment);
+var copyBtn = document.getElementById(‘copy-profile-btn’);
+if (copyBtn) copyBtn.addEventListener(‘click’, copyProfile);
+var proceedBtn = document.getElementById(‘proceed-payment-btn’);
+if (proceedBtn) proceedBtn.addEventListener(‘click’, proceedToPayment);
+}, 100);
+}
+
+function animateLoadingSteps() {
+[1,2,3,4].forEach((n, i) => {
+setTimeout(() => {
+const el = document.getElementById(‘step-’ + n);
+if (el) el.classList.add(‘visible’);
+}, i * 600);
+});
+}
+
+function handlePayment() {
+showScreen(‘screen-email’);
+}
+
+function proceedToPayment() {
+const email = document.getElementById(‘customer-email’).value;
+const name = document.getElementById(‘customer-name’).value;
+if (!email || !email.includes(’@’)) {
+alert(‘Please enter a valid email address so we can deliver your profile.’);
+return;
+}
+// Store customer details for your records
+localStorage.setItem(‘speakScentsEmail’, email);
+localStorage.setItem(‘speakScentsName’, name);
+localStorage.setItem(‘speakScentsUnlocked’, ‘true’);
+window.location.href = ‘https://buy.stripe.com/eVq6oH9oW9EKelp2RP7wA01’;
+}
+
+function showPDFUpsell() {
+window.location.href = ‘https://buy.stripe.com/eVq6oH9oW9EKelp2RP7wA01’;
+}
+
+function showScreen(id) {
+document.querySelectorAll(’.screen’).forEach(s => s.classList.remove(‘active’));
+document.getElementById(id).classList.add(‘active’);
+window.scrollTo(0, 0);
+}
+
+function shareProfile(scentName, archetype) {
+const text = `I just discovered my scent identity on SpeakScents 🖤
+
+I’m “${scentName}” — ${archetype}
+
+Find yours at speakscents.co.uk`;
+if (navigator.share) {
+navigator.share({ title: ‘My SpeakScents Identity’, text: text, url: ‘https://speakscents.co.uk’ });
+} else {
+navigator.clipboard.writeText(text).then(() => alert(‘Copied to clipboard — paste anywhere to share!’));
+}
+}
+
+function copyProfile() {
+const profile = window.currentProfile;
+if (!profile) return;
+const text = `SPEAKSCENTS PROFILE
+
+Scent Identity: ${profile.scentName}
+Archetype: ${profile.archetype}
+
+${profile.identity}
+
+RECOMMENDATIONS:
+
+01 — ${profile.recommendations[0].name} by ${profile.recommendations[0].house}
+${profile.recommendations[0].reason}
+
+02 — ${profile.recommendations[1].name} by ${profile.recommendations[1].house}
+${profile.recommendations[1].reason}
+
+03 — ${profile.recommendations[2].name} by ${profile.recommendations[2].house}
+${profile.recommendations[2].reason}
+
+WEAR TIP:
+${profile.wearTip}
+
+Customer Email: ${localStorage.getItem(‘speakScentsEmail’) || ‘not captured’}
+Customer Name: ${localStorage.getItem(‘speakScentsName’) || ‘not captured’}`;
+
+navigator.clipboard.writeText(text).then(() => {
+const btn = document.getElementById(‘copy-profile-btn’);
+if (btn) {
+btn.textContent = ‘Copied! ✓’;
+setTimeout(() => { btn.textContent = ‘Copy Profile Text For PDF’; }, 2000);
+}
+});
+}
+
+function showError(msg) {
+const box = document.getElementById(‘error-box’);
+box.textContent = msg;
+box.style.display = ‘block’;
+setTimeout(() => box.style.display = ‘none’, 5000);
+}
+
+// Attach event listeners after DOM loads
+document.addEventListener(‘DOMContentLoaded’, function() {
+var beginBtn = document.getElementById(‘begin-btn’);
+if (beginBtn) beginBtn.addEventListener(‘click’, startQuiz);
+
+var paymentBtn = document.getElementById(‘payment-btn’);
+if (paymentBtn) paymentBtn.addEventListener(‘click’, handlePayment);
+
+var proceedBtn = document.getElementById(‘proceed-payment-btn’);
+if (proceedBtn) proceedBtn.addEventListener(‘click’, proceedToPayment);
+});
+
+// Also attach immediately in case DOM already loaded
+(function() {
+var beginBtn = document.getElementById(‘begin-btn’);
+if (beginBtn) beginBtn.addEventListener(‘click’, startQuiz);
+})();
+
+</script>
+</body>
+</html>
